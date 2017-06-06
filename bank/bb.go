@@ -1,8 +1,6 @@
 package bank
 
 import (
-	"errors"
-
 	"github.com/PMoneda/flow"
 
 	"bitbucket.org/mundipagg/boletoapi/config"
@@ -56,7 +54,7 @@ func (b *bankBB) login(boleto *models.BoletoRequest) (string, error) {
 		return "", err
 	}
 	tok := util.ParseJSON(resp, new(token)).(*token)
-	return tok.AccessToken, errors.New("Saída inválida")
+	return tok.AccessToken, nil
 }
 
 //ProcessBoleto faz o processamento de registro de boleto

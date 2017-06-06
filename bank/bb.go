@@ -10,6 +10,7 @@ import (
 	"bitbucket.org/mundipagg/boletoapi/log"
 	"bitbucket.org/mundipagg/boletoapi/models"
 	"bitbucket.org/mundipagg/boletoapi/tmpl"
+	"bitbucket.org/mundipagg/boletoapi/util"
 )
 
 type bankBB struct {
@@ -42,29 +43,20 @@ func (b bankBB) Log() *log.Log {
 }
 
 func (b *bankBB) login(boleto *models.BoletoRequest) (string, error) {
-	type errorAuth struct {
-		Error            string `json:"error"`
-		ErrorDescription string `json:"error_description"`
+	type token struct {
+		AccessToken string `json:"access_token"`
 	}
-	r := flow.NewPipe()
-	url := config.Get().URLBBToken
-	from, resp := letters.GetBBAuthLetters()
-	bod := r.From("message://?source=inline", boleto, from, tmpl.GetFuncMaps())
-	r = r.To("logseq://?type=request&url="+url, b.log)
-	bod = bod.To(url, map[string]string{"method": "POST", "insecureSkipVerify": "true"})
-	r = r.To("logseq://?type=response&url="+url, b.log)
-	ch := bod.Choice().When(flow.Header("status").IsEqualTo("200")).To("transform://?format=json", resp, `{{.authToken}}`)
-	ch = ch.Otherwise().To("unmarshall://?format=json", new(errorAuth))
-	result := bod.GetBody()
-	switch t := result.(type) {
-	case string:
-		return t, nil
-	case error:
-		return "", t
-	case *errorAuth:
-		return "", errors.New(t.ErrorDescription)
+	body := "grant_type=client_credentials&scope=cobranca.registro-boletos"
+	header := make(map[string]string)
+	header["Content-Type"] = "application/x-www-form-urlencoded"
+	header["Cache-Control"] = "no-cache"
+	header["Authorization"] = "Basic " + util.Base64(boleto.Authentication.Username+":"+boleto.Authentication.Password)
+	resp, _, err := util.Post(config.Get().URLBBToken, body, header)
+	if err != nil {
+		return "", err
 	}
-	return "", errors.New("Saída inválida")
+	tok := util.ParseJSON(resp, new(token)).(*token)
+	return tok.AccessToken, errors.New("Saída inválida")
 }
 
 //ProcessBoleto faz o processamento de registro de boleto

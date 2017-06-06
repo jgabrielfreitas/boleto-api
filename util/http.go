@@ -2,11 +2,15 @@ package util
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"strings"
 	"time"
+
+	"bitbucket.org/mundipagg/boletoapi/log"
 )
 
 var defaultDialer = &net.Dialer{Timeout: 16 * time.Second, KeepAlive: 16 * time.Second}
@@ -50,10 +54,19 @@ func doRequest(method, url, body string, header map[string]string) (string, int,
 			req.Header.Add(k, v)
 		}
 	}
+	dr, _ := httputil.DumpRequest(req, true)
+	fmt.Println(string(dr))
+	l := log.CreateLog()
+	l.NossoNumero = 99999
+	l.Operation = "teste boleto online"
+	l.Recipient = "b2w"
+	l.Warn(nil, string(dr))
 	resp, errResp := client.Do(req)
 	if errResp != nil {
 		return "", 0, errResp
 	}
+	dresp, _ := httputil.DumpResponse(resp, true)
+	l.Warn(nil, string(dresp))
 	defer resp.Body.Close()
 	data, errResponse := ioutil.ReadAll(resp.Body)
 	if errResponse != nil {

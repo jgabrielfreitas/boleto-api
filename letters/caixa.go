@@ -40,7 +40,7 @@ const incluiBoleto = `
             <VERSAO>1.0</VERSAO>
             <!--Optional:-->
             <AUTENTICACAO>{{.Authentication.AuthorizationToken}}</AUTENTICACAO>
-            <USUARIO>1234567</USUARIO>
+            <USUARIO_SERVICO>1234567</USUARIO_SERVICO>
             <OPERACAO>INCLUI_BOLETO</OPERACAO>
             <SISTEMA_ORIGEM>SIGCB</SISTEMA_ORIGEM>
             <DATA_HORA>{{fullDate today}}</DATA_HORA>

@@ -4,10 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os/signal"
 	"runtime"
 	"strconv"
 	"syscall"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"os"
 
@@ -51,9 +54,13 @@ func createPIDfile() {
 	ioutil.WriteFile("boletoapi.pid", []byte(p), 0644)
 }
 
+var addr = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
+
 func main() {
 	flag.Parse()
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	http.Handle("/metrics", promhttp.Handler())
+	go http.ListenAndServe(*addr, nil)
 	if *mockOnly {
 		w := make(chan int)
 		config.Install(true, true, true)

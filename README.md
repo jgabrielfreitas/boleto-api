@@ -23,18 +23,18 @@ A API foi desenvolvida utilizando a linguagem GO e portanto é necessário insta
 O Go pode ser baixado [aqui](https://golang.org/dl/)
 
 Antes de fazer o clone do Projeto, deve ser criado o caminho de pastas dentro do $GOPATH
-
+``` shell
 	% mkdir -p "$GOPATH/src/github.com/mundipagg"
 	% cd $GOPATH/src/github.com/mundipagg 
 	% git clone https://github.com/mundipagg/boleto-api
-
+```
 Antes de compilar a aplicação deve-se instalar o [Glide](http://glide.sh/) que é o gerenciador de dependências da aplicação.
 
 Após instalar o GO, faça:
-
+``` shell
 	% cd devops
 	% ./build
-
+```
 O script build.sh irá baixar todas as dependências da aplicação e instalar o wkhtmltox, necessário para a geração do boleto em PDF.
 
 Executando a aplicação
@@ -45,36 +45,37 @@ Para executar a API com as configurações default
 Ex: 
 
 Linux (*NIX):
-
+``` shell
 	% ./boleto-api
-	
+```
 Windows:
-
+``` shell
 	% boleto-api.exe
-
+```
 Se você quiser rodar a API em modo dev, que irá carregar todas as variáveis de ambiente padrão, você deve executar a aplicação da seguinte forma:
-
+``` shell
 	% ./boleto-api -dev
-
+```
 Caso queira executar a aplicação em modo mock, para não realizar diretamente a integração com o banco e usar uma base de dados em memória, deve-se usar a opção mock:
-
+``` shell
 	% ./boleto-api -mock
-
+```
 Caso queira executar a aplicação com o log desligado, deve-se usar a opção -nolog:
-
+``` shell
 	% ./boleto-api -nolog
+```
 
 Você pode combinar essas opções como quiser e caso queira usar todas elas juntas, basta usar a opção -airplane-mode
-
+``` shell
 	% ./boleto-api -airplane-mode
-	
+```	
 
 Usando a API de boleto online
 ------------------
 
 Pode-ser usar o [Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop) para criar chamar os serviços da API ou mesmo o curl
 
-```
+``` curl
 % curl -X POST \
   http://localhost:3000/v1/boleto/register \
   -d '{
@@ -134,7 +135,7 @@ Pode-ser usar o [Postman](https://chrome.google.com/webstore/detail/postman/fhbj
 
 ```
 Resposta de sucesso da API
-```
+``` javascript
 {
   "Url": "http://localhost:3000/boleto?fmt=html&id=g8HXWatft9oMLdTMAqzxbnPYFv3sqgV_KD0W7j8Cy9nkCLZMIK1WH2p9JwP1Jzz4ZtohmQ==",
   "DigitableLine": "00190000090101405100500066673179971340000010000",
@@ -155,7 +156,7 @@ Resposta de sucesso da API
 
 ```
 Caso aconteça algum erro no processo de registro online a resposta entregue pela API seguirá o seguinte padrão.
-```
+``` javascript
 {
   "Errors": [
     {
@@ -172,7 +173,7 @@ Instalando a API
 Para instalar o executável da API precisa-se apenas compilar a aplicação e configurar as variáveis de ambiente necessárias.
 
 Edite o arquivo $HOME/.bashrc.sh
-```
+``` shell
     export API_PORT="3000"
     export API_VERSION="0.0.1"
     export ENVIRONMENT="Development"
@@ -193,32 +194,36 @@ Instalando a API via Docker
 -----------------
 
 Antes de fazer o deploy deve-se abrir o arquivo [docker-compose](/devops/docker-compose.yml) e configurar as informações que sejam pertinentes ao ambiente. Após ajustar o docker-compose pode-se instalar a aplicação usando o arquivo deploy.sh
-
-    % cd devops
-    % ./deploy.sh . local
+``` shell
+    % cd devops
+    % ./deploy.sh . local
+```
 
 O script irá criar os diretórios de volume do Docker, compilar a aplicação, montar as imagens da API e do MongoDB e subir os containers. Para mais informações sobre docker-compose consulte a [doc](https://docs.docker.com/compose/). 
 Os parâmetros passados para o script dizem que o deploy será feito de forma local e não via TFS, caso não passe o argumento "local", o script irá utilizar o docker-compose.release.yml.
 
 Após levantada, aplicação poderá ser parada ou iniciada.
-    
+``` shell
     % cd devops/
     % ./stop.sh
-    % ./start.sh
+    % ./start.sh
+```
  
 Backup e Restore
 ----------------- 
 
 Para realizar o backup da base do MongoDB execute o seguinte comando:
-
+``` shell
     % cd devops
     % ./doBackup.sh
+```
 
 Os backups gerados, por padrão, serão armazenados no diretório `$HOME/backups` com o nome `bck_boleto-api-YYYY-MM-DD.tar`.
 Para restaurar um backup:
-    
+``` shell
     % cd devops
     % ./doRestore.sh
+```
 
 Quando fizer o restore, o script irá solicitar a data do arquivo de restore e deverá ser informada uma data válida do backup no padrão: `YYYY-MM-DD`.
     
